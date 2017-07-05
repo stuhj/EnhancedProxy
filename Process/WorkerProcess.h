@@ -1,3 +1,12 @@
+/**
+ * this file is uncompeleted.
+ * 
+ * The proxy used master-workers model like nginx,
+ * this file define the worker class. 
+ * 
+ */
+
+
 #include <muduo/net/EventLoop.h>
 #include <muduo/net/Channel.h>
 #include <unistd.h>

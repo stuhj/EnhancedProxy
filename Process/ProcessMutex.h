@@ -1,3 +1,10 @@
+
+/**
+ * Use shared memory and cas to realize a process mutex
+ * 
+ * Author: Hou
+ */
+
 #include <sys/mman.h>
 #include <string>
 #include <unistd.h>
@@ -9,9 +16,7 @@
 
 //std::map<std::string, ProcessMutex*> singleProcessMutexs;
 //std::mutex singleProcessMutexsLock;
-/**
-*   
-*/
+
 
 class ProcessMutex
 {

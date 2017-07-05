@@ -1,5 +1,5 @@
 
-//unused and have not check
+//this file is uncompelete and have not check
 
 #include <ProcessMutex.h>
 using namespace std;

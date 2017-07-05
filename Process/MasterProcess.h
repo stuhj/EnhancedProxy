@@ -1,3 +1,20 @@
+/**
+ * The proxy used master-workers model like nginx,
+ * the differences between the master of this proxy and 
+ * nginx as follow:
+ * 
+ * 1. The master process would handle the signal by signalfd
+ * and poll, signalfd is an api in Linux2.6.
+ * 
+ * 2. The proxy also would open the shared memory to store
+ * eventfds for workers. These eventfds are used to communi-
+ * cate among processes and aslo use it to tackle thundering 
+ * herd of the acceptor.  
+ * 
+ * Author: Hou
+ */
+
+
 #include <vector>
 #include <string>
 #include <unistd.h>
