@@ -3,14 +3,17 @@
 
 bool processIsAlive(pid_t)
 {
+    //...
     return true;
 }
 
+//could not construct the eventloop object before fork
 MasterProcess::MasterProcess(uint16_t _processNum,
                              map<int, signalHandler> &map,
                              string &programName, string &mutexName)
     : pMutex(mutexName), shmName(programName),
-      eventLoop(new muduo::net::EventLoop()),
+      notifyId(0),
+      //eventLoop(new muduo::net::EventLoop()),
       handlers(map), processNum(_processNum)
 {
     //register signal handers
@@ -65,36 +68,52 @@ void MasterProcess::signalProcessInit()
 void MasterProcess::start()
 {
     pid_t pid;
+    WorkerProcess *worker;
     for (uint16_t i = 0; i < processNum - 1; i++)
     {
         int fd = eventfd(0, EFD_NONBLOCK);
         *(shmAddr + i) = fd;
-
         if ((pid = fork()) == 0)
         {
             //construct worker object
             //need re-create the object on heap, such as pmutex;
+
+            //for test output
+            cout << std::this_thread::get_id() << endl;
             cout << "fork: " << *(shmAddr + i) << endl;
+
+
+            worker = new WorkerProcess(shmFd, i, processNum);
             break;
+        }
+        else
+        {
+            eventfds.push_back(pair<int, int *>(pid, shmAddr + i));
         }
     }
     if (pid == 0)
     {
         //start worker to process network IO
-        while (true)
-        {
-            sleep(2);
-            //for test
-            shm_unlink(shmName.c_str());
-            cout << "i am child, doing network io" << endl;
-        }
+        worker->start();
     }
     else
     {
+        eventLoop = new muduo::net::EventLoop();
         eventLoop->runEvery(checkInterval, bind(&MasterProcess::checkWorkerStatus, this));
+        //for test communicate among processes by eventfd
+        eventLoop->runEvery(3, bind(&MasterProcess::notify, this));
         //master should process signal
         eventLoop->loop();
     }
+}
+
+void MasterProcess::notify()
+{
+    int id = notifyId % (processNum - 1);
+    uint64_t one = 1;
+    int res = write(*(shmAddr + id), &one, sizeof(uint64_t));
+    cout << "write to " << *(shmAddr + id) << ": " << res << " byte." << endl;
+    notifyId++;
 }
 
 void MasterProcess::checkWorkerStatus()
@@ -116,7 +135,7 @@ void MasterProcess::checkWorkerStatus()
         }
         else
         {
-            cout << "check ok" << endl;
+            //cout << "check ok" << endl;
         }
     }
 }

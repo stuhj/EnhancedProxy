@@ -16,7 +16,7 @@ LDFLAGS = -L$(MUDUO_LIBRARY) -lmuduo_net -lmuduo_base  -lpthread -lrt
 all: server 
 clean: 
 	rm -f server core 
-server: Test.cpp ../MasterProcess.cpp
+server: Test.cpp ../MasterProcess.cpp ../WorkerProcess.cpp
 	#_HttpContext.cpp
 	g++ $(CXXFLAGS) -I ../ -o $@ $^ $(LDFLAGS) 
 

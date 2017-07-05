@@ -10,6 +10,7 @@
 #include <assert.h>
 #include <functional>
 #include <map>
+#include <WorkerProcess.h>
 
 using namespace std;
 
@@ -36,6 +37,8 @@ class MasterProcess
 
     void signalHandlers();
 
+    void notify();
+
     ProcessMutex pMutex;
 
     vector<pid_t> workers;
@@ -49,9 +52,11 @@ class MasterProcess
 
     int shmFd;
 
+    int notifyId;
+
     /**
     *  @key process id,
-    *  @value   eventfd on shared memory.
+    *  @value   eventfd addr on shared memory.
     */
     vector<pair<pid_t, int *>> eventfds;
 
@@ -61,7 +66,7 @@ class MasterProcess
 
     uint16_t processNum;
 
-    const static uint64_t DEFAULT_CHECK_INTERVAL = 1;
+    const static uint64_t DEFAULT_CHECK_INTERVAL = 2;
 
     uint64_t checkInterval = DEFAULT_CHECK_INTERVAL;
 };
