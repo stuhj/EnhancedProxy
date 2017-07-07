@@ -10,7 +10,7 @@ bool processIsAlive(pid_t)
 //could not construct the eventloop object before fork
 MasterProcess::MasterProcess(uint16_t _processNum,
                              map<int, signalHandler> &map,
-                             string &programName, string &mutexName)
+                             std::string &programName, std::string &mutexName)
     : pMutex(mutexName), shmName(programName),
       notifyId(0),
       //eventLoop(new muduo::net::EventLoop()),
@@ -25,7 +25,7 @@ MasterProcess::MasterProcess(uint16_t _processNum,
     int res = ftruncate(shmFd, sizeof(int) * (processNum - 1));
     assert(res != -1);
     shmAddr = (int *)mmap(nullptr, sizeof(int) * (processNum - 1), PROT_READ | PROT_WRITE, MAP_SHARED, shmFd, 0);
-    assert(shmAddr != nullptr);
+    assert(shmAddr != MAP_FAILED);
 }
 
 MasterProcess::~MasterProcess()
@@ -82,8 +82,8 @@ void MasterProcess::start()
             cout << std::this_thread::get_id() << endl;
             cout << "fork: " << *(shmAddr + i) << endl;
 
-
-            worker = new WorkerProcess(shmFd, i, processNum);
+            worker = new WorkerProcess(shmFd, i, processNum, pMutex.getMutexName(),
+                                       pMutex.getMutexFd());
             break;
         }
         else
@@ -100,8 +100,7 @@ void MasterProcess::start()
     {
         eventLoop = new muduo::net::EventLoop();
         eventLoop->runEvery(checkInterval, bind(&MasterProcess::checkWorkerStatus, this));
-        //for test communicate among processes by eventfd
-        eventLoop->runEvery(3, bind(&MasterProcess::notify, this));
+
         //master should process signal
         eventLoop->loop();
     }

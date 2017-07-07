@@ -39,7 +39,7 @@ class MasterProcess
     //sigset_t：
     MasterProcess(uint16_t _processNum,
                   map<int, signalHandler> &map,
-                  string &programName, string &mutexName);
+                  std::string &programName, std::string &mutexName);
 
     ~MasterProcess();
 
@@ -65,7 +65,7 @@ class MasterProcess
     */
     int *shmAddr;
 
-    string shmName;
+    std::string shmName;
 
     int shmFd;
 
