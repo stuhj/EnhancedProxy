@@ -1,5 +1,7 @@
 # 缓存设计思路
-
+![image](http://note.youdao.com/yws/public/resource/06d1627f4bdbd1b9403cd03c943ba6b8/xmlnote/FDA1867E566646B9AF38EF8DB8E76931/373)
+ 
+图片挂了url：http://note.youdao.com/yws/public/resource/06d1627f4bdbd1b9403cd03c943ba6b8/xmlnote/FDA1867E566646B9AF38EF8DB8E76931/373
 ## 优化目标：
     使用缓存来减少后端web服务器的压力
     
@@ -14,6 +16,6 @@
 ### 缓存置换策略
     本地缓存：严格限制容量，使用LRU、LFU等策略。
     redis缓存:为key设置合理的ttl。
-![image](http://note.youdao.com/yws/public/resource/06d1627f4bdbd1b9403cd03c943ba6b8/xmlnote/FDA1867E566646B9AF38EF8DB8E76931/373)
+
 
 
