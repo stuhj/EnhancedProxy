@@ -8,7 +8,6 @@
 //
 // This is an internal header file, you should not include this.
 
-
 /**
  * this file is modified from muduo, it supports MyThreadPool. 
  * Author: Hou
@@ -23,6 +22,7 @@
 #include <functional>
 #include <memory>
 #include <vector>
+#include <map>
 #include "../ThreadPool/Producer.h"
 
 namespace muduo
@@ -45,7 +45,7 @@ public:
   ~EventLoopThreadPool();
   void setThreadNum(int numThreads) { numThreads_ = numThreads; }
   void start(const ThreadInitCallback &cb = ThreadInitCallback());
-  void start(const ThreadInitWithProducerCallback& cb);
+  void start(const ThreadInitWithProducerCallback &cb);
   // valid after calling start()
   /// round-robin
   EventLoop *getNextLoop();
@@ -65,6 +65,11 @@ public:
     return name_;
   }
 
+  Producer<function<void()>> *getProducer(EventLoop *ioLoop)
+  {
+    return ProducerMap_.find(ioLoop) == ProducerMap_.end() ? nullptr : ProducerMap_[ioLoop];
+  }
+
 private:
   EventLoop *baseLoop_;
   string name_;
@@ -73,6 +78,7 @@ private:
   int next_;
   std::vector<std::unique_ptr<EventLoopThread>> threads_;
   std::vector<EventLoop *> loops_;
+  std::map<EventLoop *, Producer<std::function<void()>> *> ProducerMap_;
 };
 }
 }

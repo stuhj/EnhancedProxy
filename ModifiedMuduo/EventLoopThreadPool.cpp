@@ -65,6 +65,7 @@ void EventLoopThreadPool::start(const ThreadInitWithProducerCallback & cb)
     EventLoopThread* t = new EventLoopThread(cb, buf);
     threads_.push_back(std::unique_ptr<EventLoopThread>(t));
     loops_.push_back(t->startLoop());
+    ProducerMap_[loops_.back()] = t->getProducer();
   }
   if (numThreads_ == 0 && cb)
   {

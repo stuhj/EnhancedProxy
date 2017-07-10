@@ -130,6 +130,11 @@ private:
 
   typedef std::map<string, TcpConnectionPtr> ConnectionMap;
 
+  typedef std::function<void(Producer<std::function<void()>> *,
+                             const TcpConnectionPtr &,
+                             Buffer *,
+                             Timestamp)> MessageCallbackWithProducer;
+
   EventLoop *loop_; // the acceptor loop
   const string ipPort_;
   const string name_;
@@ -137,6 +142,7 @@ private:
   std::shared_ptr<EventLoopThreadPool> threadPool_;
   ConnectionCallback connectionCallback_;
   MessageCallback messageCallback_;
+  MessageCallbackWithProducer messageCallbackWithProducer_;
   WriteCompleteCallback writeCompleteCallback_;
   ThreadInitCallback threadInitCallback_;
   ThreadInitWithProducerCallback threadInitWithProducerCallback_;

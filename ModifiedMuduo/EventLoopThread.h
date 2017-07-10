@@ -32,23 +32,25 @@ class EventLoop;
 
 class EventLoopThread : noncopyable
 {
- public:
-  typedef std::function<void(EventLoop*)> ThreadInitCallback;
-  typedef std::function<void(Producer<std::function<void()>>*,EventLoop*)> ThreadInitWithProducerCallback;
+public:
+  typedef std::function<void(EventLoop *)> ThreadInitCallback;
+  typedef std::function<void(Producer<std::function<void()>> *, EventLoop *)> ThreadInitWithProducerCallback;
 
-  EventLoopThread(const ThreadInitCallback& cb = ThreadInitCallback(),
-                  const string& name = string());
-  EventLoopThread(const ThreadInitWithProducerCallback& cb,
-                  const string& name = string());
+  EventLoopThread(const ThreadInitCallback &cb = ThreadInitCallback(),
+                  const string &name = string());
+  EventLoopThread(const ThreadInitWithProducerCallback &cb,
+                  const string &name = string());
   ~EventLoopThread();
-  EventLoop* startLoop();
+  EventLoop *startLoop();
 
- private:
+  Producer<std::function<void()>> *getProducer() { return producer_; }
+
+private:
   void threadFunc();
 
-  EventLoop* loop_;
+  EventLoop *loop_;
   //fix
-  Producer<std::function<void()>>* producer_;
+  Producer<std::function<void()>> *producer_;
   bool exiting_;
   Thread thread_;
   MutexLock mutex_;
@@ -56,9 +58,7 @@ class EventLoopThread : noncopyable
   ThreadInitCallback callback_;
   ThreadInitWithProducerCallback initCallback_;
 };
-
 }
 }
 
-#endif  // MUDUO_NET_EVENTLOOPTHREAD_H
-
+#endif // MUDUO_NET_EVENTLOOPTHREAD_H
