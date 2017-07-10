@@ -16,6 +16,9 @@ void ProxyServer::enableListen()
 {
     if (isStart == false)
     {
+        //need fix:this to shared_from_this()
+        server.setThreadInitCallback(bind(&ProxyServer::threadInitCallback,this,
+        std::placeholders::_1, std::placeholders::_2));
         server.start();
         LOG_INFO << "tcpserver " << serverName << " start.";
         isStart = true;

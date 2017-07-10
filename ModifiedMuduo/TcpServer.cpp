@@ -14,7 +14,7 @@
 #include <muduo/base/Logging.h>
 #include "./Acceptor.h"
 #include <muduo/net/EventLoop.h>
-#include <muduo/net/EventLoopThreadPool.h>
+#include "EventLoopThreadPool.h"
 #include <muduo/net/SocketsOps.h>
 
 #include <stdio.h> // snprintf
@@ -65,7 +65,7 @@ void TcpServer::start()
 {
   if (started_.getAndSet(1) == 0)
   {
-    threadPool_->start(threadInitCallback_);
+    threadPool_->start(threadInitWithProducerCallback_);
 
     assert(!acceptor_->listenning());
     loop_->runInLoop(

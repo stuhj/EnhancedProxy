@@ -19,6 +19,8 @@
 #include <muduo/base/Types.h>
 #include <muduo/net/TcpConnection.h>
 #include "../Process/ProcessMutex.h"
+#include "../ThreadPool/Producer.h"
+#include <functional>
 
 #include <map>
 
@@ -39,6 +41,8 @@ class TcpServer : noncopyable
 {
 public:
   typedef std::function<void(EventLoop *)> ThreadInitCallback;
+  typedef std::function<void(Producer<std::function<void()>> *, EventLoop *)>
+      ThreadInitWithProducerCallback;
   enum Option
   {
     kNoReusePort,
@@ -70,6 +74,11 @@ public:
   void setThreadInitCallback(const ThreadInitCallback &cb)
   {
     threadInitCallback_ = cb;
+  }
+
+  void setThreadInitCallback(const ThreadInitWithProducerCallback &cb)
+  {
+    threadInitWithProducerCallback_ = cb;
   }
   /// valid after calling start()
   std::shared_ptr<EventLoopThreadPool> threadPool()
@@ -130,9 +139,11 @@ private:
   MessageCallback messageCallback_;
   WriteCompleteCallback writeCompleteCallback_;
   ThreadInitCallback threadInitCallback_;
+  ThreadInitWithProducerCallback threadInitWithProducerCallback_;
 
   //notify other worker to accept connection.
-  std::function<void()> notifyOtherWorkerToListen;; 
+  std::function<void()> notifyOtherWorkerToListen;
+  ;
 
   AtomicInt32 started_;
   // always in loop thread

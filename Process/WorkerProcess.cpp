@@ -42,6 +42,7 @@ void WorkerProcess::start()
     channel->enableReading();
 
     //try to start listening.
+    server.setIOThreadNum(2);
     server.start();
     eventLoop->loop();
 }
