@@ -4,6 +4,7 @@
 
 #include "../ModifiedMuduo/TcpServer.h"
 #include "../Process/ProcessMutex.h"
+#include "Tunnel.h"
 #include <string>
 
 using namespace std;
