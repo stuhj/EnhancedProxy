@@ -4,8 +4,9 @@
 #include <set>
 #include <vector>
 #include<functional>
-#include<CircleQueue.h>
-#include<Consumer.h>
+#include "CircleQueue.h"
+#include "Consumer.h"
+#include <muduo/base/Logging.h>
 using namespace std;
 
 
@@ -31,6 +32,7 @@ public:
     for (int i = 0; i < 4; i++)
     {
       threads.emplace_back(new thread(&MyThreadPool::runInMyThread, this, std::ref(circleArray)));
+      LOG_INFO<<"thread "<<i<<" has started.";
     }
   }
 

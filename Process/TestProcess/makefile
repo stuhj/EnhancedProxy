@@ -20,7 +20,11 @@ clean:
 server: Test.cpp ../MasterProcess.cpp ../WorkerProcess.cpp 		\
 		../../ProxyServer/ProxyServer.cpp 						\
 		../../ModifiedMuduo/Acceptor.cpp 						\
-		../../ModifiedMuduo/TcpServer.cpp
+		../../ModifiedMuduo/TcpServer.cpp						\
+		../../ModifiedMuduo/EventLoopThread.cpp 					\
+		../../ModifiedMuduo/EventLoopThreadPool.cpp				\
+		../../Http/_HttpContext.cpp 							\
+		../../ThreadPool/MyThreadPool.cpp		
 
 	g++ $(CXXFLAGS) -I ../  -o $@ $^ $(LDFLAGS) 
 

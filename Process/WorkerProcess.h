@@ -16,6 +16,7 @@
 #include "../ModifiedMuduo/TcpServer.h"
 #include "../ProxyServer/ProxyServer.h"
 #include <string>
+#include "SystemChecker.h"
 using namespace std;
 
 class WorkerProcess
@@ -45,6 +46,8 @@ private:
   int shmFd;
   ProcessMutex pMutex;
   ProxyServer server;
+  MemoryChecker *memoryChecker;
+  
 };
 
 #endif

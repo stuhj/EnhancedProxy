@@ -6,7 +6,6 @@
 #include <string>
 using namespace std;
 
-
 WorkerProcess::WorkerProcess(int shm_fd, int shm_id, int process_num,
                              std::string mutex_name, int mutex_fd)
     : shmFd(shm_fd),
@@ -14,6 +13,7 @@ WorkerProcess::WorkerProcess(int shm_fd, int shm_id, int process_num,
       processNum(process_num),
       pMutex(mutex_name, mutex_fd),
       eventLoop(new muduo::net::EventLoop()),
+      memoryChecker(new MemoryChecker()),
       server(eventLoop, InetAddress("127.0.0.1", 6666), std::string("proxy"), &pMutex)
 {
     cout << shm_id << endl;
@@ -25,6 +25,7 @@ WorkerProcess::WorkerProcess(int shm_fd, int shm_id, int process_num,
 
 WorkerProcess::~WorkerProcess()
 {
+    delete memoryChecker;
     shm_unlink(shmName.c_str());
 }
 
@@ -41,11 +42,13 @@ void WorkerProcess::start()
     channel->setReadCallback(bind(&WorkerProcess::EventHandler, this, muduo::Timestamp()));
     channel->enableReading();
 
+    //memory check
+    eventLoop->runEvery(10,std::bind(&MemoryChecker::checkMemory, memoryChecker));
     //try to start listening.
+    server.setIOThreadNum(2);
     server.start();
     eventLoop->loop();
 }
-
 
 /**
  * 1. unlock.
@@ -57,7 +60,6 @@ void WorkerProcess::acceptorScheduling(int eventFd, ProcessMutex *pmutex)
     pmutex->unlock();
     write(eventFd, &one, sizeof(uint64_t));
 }
-
 
 /**
  * the loop is wakeuped by eventfd. 
