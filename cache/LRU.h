@@ -83,23 +83,3 @@ private:
 	Node<K, V>*tail_;
 	Node<K, V>* entries_;
 };
-/*
-int main() {
-	LRUCache<int, string> lru_cache(3);
-	int a[] = { 1,2,3,4 };
-	string b[] = {"one","two","three","four"};
-	
-	for(int i=0;i<4;++i){
-		lru_cache.Put(&a[i], &b[i]);
-	}	
-	if (lru_cache.Get(&a[0]) != NULL)
-		cout << *lru_cache.Get(&a[0]) << endl;
-	else
-		cout<<"no 1";
-
-	if (lru_cache.Get(&a[3]) != NULL)
-		cout << *lru_cache.Get(&a[3]) << endl;
-	else
-		cout<<"no 3";
-	return 0;
-}*/
