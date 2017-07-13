@@ -54,8 +54,7 @@ public:
             assert(lru_cache.unique());
             lru_cache->put(&(contex->request_url),&respond);
         }
-    
-
+    };
 
 /*
     //类似于ProxyServer::solveOnMessage
