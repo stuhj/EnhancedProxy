@@ -21,37 +21,24 @@
 using namespace muduo;
 using namespace muduo::net;
 typedef LRUCache<string, string> CacheList;
-typedef boost::shared_ptr<cache_list>  CacheListPtr;
+typedef boost::shared_ptr<CacheList>  CacheListPtr;
 
 class MemoryCache{
 private:
-     CacheListPtr lru_cache;
+     CacheListPtr lru_cache_ptr;
       MutexLock mutex;
 public:
     MemoryCache(int n){
-        lru_cache=new  lru_cache(n);
+        lru_cache_ptr=new  lru_cache(n);
     }
     //调用时，需要判断
     string* readCache(string url)
     {
-         MutexLockGuard lock(mutex);
-        CacheListPtr lru_cache_temp;
-        {
-             MutexLockGuard lock(mutex);
-             lru_cache_temp=lru_cache;
-             assert(!lru_cache.unique());
-        }
-        string* cache_respond=lru_cache_temp->Get(&(context->request_url));
+        string* cache_respond=lru_cache_ptr_temp->Get(&(context->request_url));
         return cache_respond;
     }
     void writeCache(string url,string respond)
     {
-        if(!lru_cache.unique())
-        {
-            lru_cache.reset(new  CacheList(*lru_cache));
-             LOG_INFO<<"copy suceed";
-         }
-            assert(lru_cache.unique());
-            lru_cache->put(&(contex->request_url),&respond);
-        }
+            lru_cache_ptr->put(&(contex->request_url),&respond);
+    }
     };

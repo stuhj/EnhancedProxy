@@ -1,6 +1,7 @@
 #include "ProxyServer.h"
 #include <iostream>
 #include <muduo/base/Logging.h>
+
 /**
  * if this process fetch the lock, start listening.
  */
@@ -88,66 +89,80 @@ void ProxyServer::onServerMessage(const TcpConnectionPtr &conn, Buffer *buf, Tim
     //threadpool_.run(std::bind(&ProxyServer::solveOnMessage, this, conn, buf, buf_, receiveTime));
 }
 
+
+//CachePtr cache_ptr=new  cache    全局变量
 void ProxyServer::solveOnMessage(const TcpConnectionPtr &conn, Buffer *buf,
                                  std::vector<char> buff, Timestamp receiveTime)
 {
-    //LOG_INFO<<"Http Message Recieve";
-    /*
-    std::shared_ptr<_HttpContext> context(new _HttpContext());
-    std::pair<bool, int> info;
+    void ProxyServer::solveOnMessage(const TcpConnectionPtr& conn,Buffer*buf,std::vector<char>buff,Timestamp receiveTime)
+    {   LOG_INFO<<"00000000";
+    //LOG_INFO<<"Http Message Recieve";  
+    std::shared_ptr<_HttpContext>context(new _HttpContext());
+    std::pair<bool,int> info;
     bool isCheck = false;
-    while (isCheck || (conn->connected() &&
-                       (info = context->parseRequest(buff)).first)) //request is compeleted
+    while(isCheck || (conn->connected() && 
+            (info = context->parseRequest(buff)).first))  //解析请求是完整的
     {
-        // LOG_INFO<<"Http Request Complete ";
-        if (!isCheck && conn->getContext().empty())
+        string* cache_respond=ReadCache(context->request_url);
+        if(context->request_method=="get" &&  cache_respond != NULL){//get请求，且有缓存，则直接发给客户端
+                ProxyServer::send(*cache_respond);  //伪代码
+        }
+        else
         {
-            //create tunnel
-            TunnelPtr tunnel(new Tunnel(g_eventLoop, *g_serverAddr, conn));
+             // LOG_INFO<<"Http Request Complete ";
+        if(!isCheck && conn->getContext().empty()) //没有到后端的连接
+        {
+            //建立到后端的连接，并发送
+            TunnelPtr tunnel(new Tunnel(g_eventLoop,*g_serverAddr,conn));
             tunnel->setup();
             tunnel->connect();
-            //add tunnel to map
-            //the life of tunnel is longer.
-            tunnels[conn->name()] = tunnel;
+            //将这个tunnel加入到映射表中
+            //tunnel生命期被延长
+            g_tunnels[conn->name()] = tunnel;
             isCheck = true;
         }
-        else if (!conn->getContext().empty())
+                else if(!conn->getContext().empty())
         {
-            //get connection to web server
-            //send msg to web server
-            const TcpConnectionPtr &clientConn =
-                boost::any_cast<const TcpConnectionPtr &>(conn->getContext());
-            LOG_INFO << "info.second: " << info.second;
-            LOG_INFO << "vector.size(): " << buff.size();
+            //转发数据到后端
+            //获取到后端的连接
+            urlpush(context->request_url);
+            const TcpConnectionPtr& clientConn = 
+                boost::any_cast<const TcpConnectionPtr&>(conn->getContext());
+            LOG_INFO<<"info.second: "<<info.second;
+            LOG_INFO<<"vector.size(): "<<buff.size();
             //clientConn->send(buf->peek(),info.second);
-            clientConn->send(&*buff.begin(), info.second);
-            LOG_INFO << "readableBytes before send: " << buf->readableBytes();
-            std::string http_(const_cast<char *>(buf->peek()), buf->beginWrite());
+            clientConn->send(&*buff.begin(),info.second);
+            LOG_INFO<<"readableBytes before send: "<<buf->readableBytes();
+            std::string http_(const_cast<char*>(buf->peek()),buf->beginWrite());
 
             buf->retrieve(info.second);
-            LOG_INFO << "readableBytes after send: " << buf->readableBytes();
+            LOG_INFO<<"readableBytes after send: "<<buf->readableBytes();
             //if(context->gotAll())
             {
                 context->reset();
-            }
+            } 
 
-            std::string http(buff.begin(), buff.begin() + info.second);
+            std::string http(buff.begin(),buff.begin()+info.second);
 
-            buff.erase(buff.begin(), buff.begin() + info.second);
+            buff.erase(buff.begin(),buff.begin()+info.second);
+            //LOG_INFO<<"retrieve in stack buffer: "<<info.second;
+            //LOG_INFO<<"least data: "<<buff.size();
             assert(http_ == http);
             isCheck = false;
         }
-    }
-    if (buf->readableBytes() > (1024 * 1024 * 10))
+        }
+            
+          if(buf->readableBytes()>(1024*1024*10))
     {
-        LOG_INFO << "CLOSE DIRTY CONNECTION: " << buf->readableBytes();
-        if (tunnels.find(conn->name()) != tunnels.end())
+        LOG_INFO<<"CLOSE DIRTY CONNECTION: "<<buf->readableBytes();
+        if(g_tunnels.find(conn->name()) != g_tunnels.end())
         {
-            tunnels[conn->name()]->disconnect();
-            tunnels.erase(conn->name());
+            g_tunnels[conn->name()]->disconnect();
+            g_tunnels.erase(conn->name());
         }
         conn->shutdown();
         conn->forceCloseWithDelay(1);
     }
-    */
+    }
+}
 }

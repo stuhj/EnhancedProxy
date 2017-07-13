@@ -8,10 +8,13 @@
 #include "../ThreadPool/Producer.h"
 #include "../ModifiedMuduo/EventLoopThreadPool.h"
 #include "Tunnel.h"
+#include"../UrlQueue.h"
+#include"../cache.h"
 #include <string>
 #include <unordered_map>
 #include <map>
 #include <muduo/base/Types.h>
+
 
 using namespace muduo::net;
 using namespace muduo;
