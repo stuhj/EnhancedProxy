@@ -23,7 +23,8 @@ server: Test.cpp ../MasterProcess.cpp ../WorkerProcess.cpp 		\
 		../../ModifiedMuduo/TcpServer.cpp						\
 		../../ModifiedMuduo/EventLoopThread.cpp 					\
 		../../ModifiedMuduo/EventLoopThreadPool.cpp				\
-		../../Http/_HttpContext.cpp 		
+		../../Http/_HttpContext.cpp 							\
+		../../ThreadPool/MyThreadPool.cpp		
 
 	g++ $(CXXFLAGS) -I ../  -o $@ $^ $(LDFLAGS) 
 

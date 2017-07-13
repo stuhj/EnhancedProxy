@@ -7,6 +7,7 @@
 using namespace std::placeholders;
 void ProxyServer::start()
 {
+    threadpool.start();
     if (pMutex->tryLock())
     {
         enableListen();
@@ -22,7 +23,7 @@ void ProxyServer::enableListen()
                                                _1, _2));
         server.setMessageCallback(std::bind(&ProxyServer::onServerMessage, this,
                                             _1, _2, _3));
-        server.setConnectionCallback(std::bind(&ProxyServer::onServerConnection,this,_1));
+        server.setConnectionCallback(std::bind(&ProxyServer::onServerConnection, this, _1));
         server.start();
         LOG_INFO << "tcpserver " << serverName << " start.";
         isStart = true;
@@ -42,10 +43,9 @@ void ProxyServer::setHandler(const std::function<void()> &cb)
 void ProxyServer::onServerConnection(const TcpConnectionPtr &conn)
 {
     // LOG_INFO<<"SERVER CONNECTION CALLBACK";
-    /*
     if (conn->connected())
     {
-        if (g_memoryUsed < 1024 * 1024 * 256)
+        if (1 < 1024 * 1024 * 256)
         {
             conn->setTcpNoDelay(true);
             conn->startRead();
@@ -61,25 +61,24 @@ void ProxyServer::onServerConnection(const TcpConnectionPtr &conn)
     }
     else
     {
-        auto i = g_tunnels.find(conn->name());
-        //LOG_INFO<<"HAS TUNNEL: "<<(i==g_tunnels.end()?"false":"ture");
-        if (i != g_tunnels.end())
+        auto i = tunnels.find(conn->name());
+        //LOG_INFO<<"HAS TUNNEL: "<<(i==tunnels.end()?"false":"ture");
+        if (i != tunnels.end())
         {
-            g_tunnels[conn->name()]->disconnect();
-            g_tunnels.erase(conn->name());
+            tunnels[conn->name()]->disconnect();
+            tunnels.erase(conn->name());
         }
     }
-    */
 }
 void ProxyServer::onServerMessage(const TcpConnectionPtr &conn, Buffer *buf, Timestamp receiveTime)
 {
     //LOG_INFO<<"readable bytes: "<<buf->readableBytes();
     EventLoop *ioLoop = conn->getLoop();
     Producer<std::function<void()>> *producer = server.threadPool()->getProducer(ioLoop);
-    if(producer == nullptr)
+    if (producer == nullptr)
     {
-        LOG_ERROR<<"there is no this ioLoop in Producer_Map";
-        return ;
+        LOG_ERROR << "there is no this ioLoop in Producer_Map";
+        return;
     }
     //to thread safe
     std::vector<char> buf_(const_cast<char *>(buf->peek()), buf->beginWrite());
@@ -93,7 +92,7 @@ void ProxyServer::solveOnMessage(const TcpConnectionPtr &conn, Buffer *buf,
                                  std::vector<char> buff, Timestamp receiveTime)
 {
     //LOG_INFO<<"Http Message Recieve";
-   /*
+    /*
     std::shared_ptr<_HttpContext> context(new _HttpContext());
     std::pair<bool, int> info;
     bool isCheck = false;
@@ -109,7 +108,7 @@ void ProxyServer::solveOnMessage(const TcpConnectionPtr &conn, Buffer *buf,
             tunnel->connect();
             //add tunnel to map
             //the life of tunnel is longer.
-            g_tunnels[conn->name()] = tunnel;
+            tunnels[conn->name()] = tunnel;
             isCheck = true;
         }
         else if (!conn->getContext().empty())
@@ -142,10 +141,10 @@ void ProxyServer::solveOnMessage(const TcpConnectionPtr &conn, Buffer *buf,
     if (buf->readableBytes() > (1024 * 1024 * 10))
     {
         LOG_INFO << "CLOSE DIRTY CONNECTION: " << buf->readableBytes();
-        if (g_tunnels.find(conn->name()) != g_tunnels.end())
+        if (tunnels.find(conn->name()) != tunnels.end())
         {
-            g_tunnels[conn->name()]->disconnect();
-            g_tunnels.erase(conn->name());
+            tunnels[conn->name()]->disconnect();
+            tunnels.erase(conn->name());
         }
         conn->shutdown();
         conn->forceCloseWithDelay(1);

@@ -9,8 +9,10 @@
 #include "../ModifiedMuduo/EventLoopThreadPool.h"
 #include "Tunnel.h"
 #include <string>
+#include <unordered_map>
+#include <map>
+#include <muduo/base/Types.h>
 
-using namespace std;
 using namespace muduo::net;
 using namespace muduo;
 
@@ -59,6 +61,8 @@ private:
   int shmId;
   ProcessMutex *pMutex;
   TcpServer server;
+  //use muduo::string
+  std::map<muduo::string, TunnelPtr> tunnels;
   MyThreadPool threadpool;
 };
 
