@@ -97,6 +97,9 @@ class Tunnel : public std::enable_shared_from_this<Tunnel>,
     {
         if (serverConn_)
         {
+            string response((buf->buffer_).begin(), (buf->buffer_).end());
+            string url=urlpop();
+            WriteCache(url,response);
             serverConn_->send(buf);
         }
         else
