@@ -91,26 +91,43 @@ void ProxyServer::onServerMessage(const TcpConnectionPtr &conn, Buffer *buf, Tim
 void ProxyServer::solveOnMessage(const TcpConnectionPtr &conn, Buffer *buf,
                                  std::vector<char> buff, Timestamp receiveTime)
 {
-    //LOG_INFO<<"Http Message Recieve";
-    /*
     std::shared_ptr<_HttpContext> context(new _HttpContext());
     std::pair<bool, int> info;
     bool isCheck = false;
     while (isCheck || (conn->connected() &&
-                       (info = context->parseRequest(buff)).first)) //request is compeleted
+                       //request is compeleted
+                       (info = context->parseRequest(buff)).first))
     {
-        // LOG_INFO<<"Http Request Complete ";
+        // get method and no cookie 
+        if (context->getRequestMethod() == context->GetMethod)
+        {
+            //read cache
+            std::string *content = cache->readCache(context->getRequestUrl());
+            if (content)
+            {
+                //create http response and send;
+                std::string &response = context->createResponse(content);
+                conn->send(response.c_str(), response.size());
+                buf->retrieve(info.second);
+                buff.erase(buff.begin(), buff.begin() + info.second);
+                context->reset();
+                isCheck = false;
+                continue;
+            }
+        }
         if (!isCheck && conn->getContext().empty())
         {
             //create tunnel
-            TunnelPtr tunnel(new Tunnel(g_eventLoop, *g_serverAddr, conn));
-            tunnel->setup();
+            TunnelPtr tunnel(new Tunnel(eventLoop, *serverAddr, conn));
+            tunnel->setup(cache);
             tunnel->connect();
             //add tunnel to map
             //the life of tunnel is longer.
             tunnels[conn->name()] = tunnel;
+            tunnel.pushCache(context->getRequestUrl(), !context.hasCookie());
             isCheck = true;
         }
+        // fix to if ?
         else if (!conn->getContext().empty())
         {
             //get connection to web server
@@ -149,5 +166,4 @@ void ProxyServer::solveOnMessage(const TcpConnectionPtr &conn, Buffer *buf,
         conn->shutdown();
         conn->forceCloseWithDelay(1);
     }
-    */
 }

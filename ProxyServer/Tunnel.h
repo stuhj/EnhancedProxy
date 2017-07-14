@@ -13,6 +13,7 @@
 #include <muduo/net/TcpClient.h>
 #include "../ModifiedMuduo/TcpServer.h"
 #include "../Http/_HttpContext.h"
+#include "../Cache/Cache.h"
 
 class Tunnel : public std::enable_shared_from_this<Tunnel>,
                muduo::noncopyable
@@ -31,8 +32,9 @@ class Tunnel : public std::enable_shared_from_this<Tunnel>,
         LOG_INFO << "~Tunnel";
     }
 
-    void setup()
+    void setup(std::shared_ptr<Cache> cacheptr)
     {
+        cache = cacheptr;
         using namespace std::placeholders;
         client_.setConnectionCallback(
             std::bind(&Tunnel::onClientConnection, shared_from_this(), _1));
@@ -53,10 +55,26 @@ class Tunnel : public std::enable_shared_from_this<Tunnel>,
         client_.disconnect();
     }
 
+    void pushCache(std::string url, bool canCache)
+    {
+        cacheQueue_.push(std::pair<std::string, bool>(url, canCache));
+    }
+
+    void popCache()
+    {
+        if (!cacheQueue_.empty())
+        {
+            cacheQueue_.pop();
+        }
+    }
+
   private:
     muduo::net::TcpClient client_;
     muduo::net::TcpConnectionPtr serverConn_;
     muduo::net::TcpConnectionPtr clientConn_;
+
+    std::queue<std::pair<std::string, bool>> cacheQueue_;
+    std::shared_ptr<Cache> cache;
 
     void teardown()
     {
@@ -79,7 +97,8 @@ class Tunnel : public std::enable_shared_from_this<Tunnel>,
             conn->setTcpNoDelay(true);
             conn->setHighWaterMarkCallback(
                 std::bind(&Tunnel::onHighWaterMarkWeak, std::weak_ptr<Tunnel>(shared_from_this()),
-                          kClient, _1, _2), 1024 * 1024);
+                          kClient, _1, _2),
+                1024 * 1024);
 
             serverConn_->setContext(conn);
 
@@ -92,12 +111,30 @@ class Tunnel : public std::enable_shared_from_this<Tunnel>,
         }
     }
 
+    //thread safe
     void onClientMessage(const muduo::net::TcpConnectionPtr &conn,
                          muduo::net::Buffer *buf, muduo::Timestamp)
     {
         if (serverConn_)
         {
-            serverConn_->send(buf);
+            //write response to cache
+            std::pair<std::string, bool> res = cacheQueue_.front();
+            _HttpContext context;
+            vector<char> buff(const_cast<char *>(buf->peek()), buf->beginWrite());
+            if (context.isResponseCompelete(buff))
+            {
+                if (res.second)
+                {
+                    //update cache
+                    cache->writeCache(res.first, (const char *)&*buff.begin());
+                    serverConn_->send(buf, buff.size());
+                }
+                else
+                {
+                    serverConn_->send(buf, buff.size());
+                }
+                popCache();
+            }
         }
         else
         {

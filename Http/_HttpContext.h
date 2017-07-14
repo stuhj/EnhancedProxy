@@ -1,13 +1,13 @@
-#include<muduo/base/copyable.h>
-#include<muduo/net/Buffer.h>
-#include<utility>
-#include<muduo/base/Timestamp.h>
+#include <muduo/base/copyable.h>
+#include <muduo/net/Buffer.h>
+#include <utility>
+#include <muduo/base/Timestamp.h>
 using namespace muduo;
 using namespace muduo::net;
 
-class _HttpContext:public muduo::copyable
+class _HttpContext : public muduo::copyable
 {
-public:
+  public:
     enum HttpRequestParseState
     {
         kExpectRequestLine,
@@ -15,17 +15,28 @@ public:
         kExpectBody,
         kGotAll,
     };
-
     _HttpContext()
-        :state_(kExpectRequestLine)
-    {        
+        : state_(kExpectRequestLine)
+    {
     }
 
-    std::pair<bool,int> parseRequest(Buffer*buf);
-    std::pair<bool,int> parseRequest(std::vector<char>&buf);
+    std::pair<bool, int> parseRequest(Buffer *buf);
+    std::pair<bool, int> parseRequest(std::vector<char> &buf);
+    bool isResponseCompelete(std::vector<char>& buf)
+    {
+        return false;
+    }
     //bool parseRequest(Buffer*buf,Timestamp receiveTime);
-    bool gotAll()   const
-    {return state_ == kGotAll;}
+
+    std::string createResponse(std::string *content)
+    {
+        return string();
+    }
+
+    bool gotAll() const
+    {
+        return state_ == kGotAll;
+    }
 
     void reset()
     {
@@ -37,10 +48,27 @@ public:
         return state_;
     }
 
-private:
+    std::string getRequestMethod()
+    {
+        return request_method;
+    }
 
+    std::string getRequestUrl()
+    {
+        return request_url;
+    }
+
+    bool hasCookie()
+    {
+        return hasCookie_;
+    }
+    const std::string GetMethod = "Get";
+
+  private:
     HttpRequestParseState state_;
-    
-    bool processRequestLine(const char* begin,const char* end);
-    
+    std::string request_method;
+    std::string request_url;
+    bool hasCookie_ = true;
+
+    bool praseRequestLine(char *begin, char *end);
 };

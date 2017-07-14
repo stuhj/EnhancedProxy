@@ -25,6 +25,8 @@ public:
         serverName(server_name),
         isStart(false),
         pMutex(mutex),
+        cache(new Cache(DEFAULT_CACHE_CAPACITY, DEFAULT_REDIS_IP,
+                        DEFAULT_REDIS_PORT, DEFAULT_EXPIRED_TIME)),
         server(eventLoop, address, /*serverName*/ "proxy", TcpServer::Option::kReusePort)
   {
   }
@@ -54,6 +56,13 @@ private:
     LOG_INFO << "init producer which to write to threadpoll queue";
   }
 
+
+  const int DEFAULT_CACHE_CAPACITY = 128;
+  const std::string DEFAULT_REDIS_IP = "127.0.0.1";
+  const int DEFAULT_REDIS_PORT = 6379;
+  const int DEFAULT_EXPIRED_TIME = 20;
+
+  
   EventLoop *eventLoop;
   std::string serverName;
   bool isStart;
@@ -64,6 +73,8 @@ private:
   //use muduo::string
   std::map<muduo::string, TunnelPtr> tunnels;
   MyThreadPool threadpool;
+
+  std::shared_ptr<Cache> cache;
 };
 
 #endif

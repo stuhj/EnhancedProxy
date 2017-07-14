@@ -4,102 +4,29 @@
 using namespace muduo;
 using namespace muduo::net;
 const std::string CRLF = "\r\n"; 
-bool _HttpContext::processRequestLine(const char*begin,const char*end)
+bool _HttpContext::processRequestLine(char*begin, char*end)
 {
    // size_t length = 0;
-    bool ok = true;
-
-    //return std::pair<bool,size_t>(ok,length);
-    return ok;
-}
-
-
-std::pair<bool,int> _HttpContext::parseRequest(Buffer*buf)
-{
-    bool ok = true;
-    bool hasMore = true;
-    unsigned int bodySize = 0;
-    int length = 0;
-    char* peek = (char*)(buf->peek());
-
-    int offset = 0;
-    while(hasMore)
-    {   
-        if(state_ == kExpectRequestLine)    
-        {
-	        //LOG_INFO<<"state: RequestLine";
-            LOG_INFO<<1;
-            char* crlf =  (char*)(buf->findCRLF(buf->peek()+offset));  //找\r\n
-  
-            LOG_INFO<<"requestLine founded";
-            if(crlf)
-            {
-              
-                ok = processRequestLine(/*buf->peek()*/buf->peek()+offset,crlf);
-                if(ok)
-                {
-                    //buf->retrieveUntil(crlf+2);
-                    offset = crlf+2-buf->peek();
-                    state_ = kExpectHeaders;    
-                }
-                else
-                {
-                    hasMore = false;    
-                }
-            }
-            else
-            {
-                ok = false;     
-                hasMore = false;
-            }
-        }
-        else if(state_ == kExpectHeaders)
-        {
-	        //LOG_INFO<<"state: parse Header";
-            LOG_INFO<<"offset: "<<offset;
-            LOG_INFO<<"2: peek-start:"<<buf->peek()+offset-buf->peek();
-            char* crlf =  (char*)(buf->findCRLF(buf->peek()+offset));
-            if(crlf)
-            {
-                char* colon = std::find((char*)buf->peek()+offset,crlf,':');
-                if(colon != crlf)
-                {
-                    std::string contentLength((char*)buf->peek()+offset,colon);
-                    if(contentLength == "Content-Length")
-                    {
-                        bodySize = std::atoi(std::string(colon+1,crlf).c_str());
-                    }
-                    //request_.addHeader(/*buf->peek()*/peek,colon,crlf);      
-                    offset = crlf+2-(char*)(buf->peek());
-                }
-                else
-                {
-                    //empty line, Header end
-                    state_ = kExpectBody; 
-                    offset = offset+2;
-                }
-            }
-            else
-            {
-		        //LOG_INFO<<"Header uncomplete";
-                ok = false;
-                hasMore = false;
-            }
-        }
-        else if(state_ == kExpectBody)
-        {
-	        LOG_INFO<<"state: parse  Body";
-            length += bodySize;
-            if(bodySize != 0 && buf->readableBytes()< bodySize)
-            {
-                ok = false;
-            }
-            hasMore = false;
-        }
+    char *start = begin;
+    while (start != end && *start != ' ')
+    {
+        request_method += *start;
+        ++start;
     }
-    length += offset;
-    return std::pair<bool,int>(ok,length);
+    if (start == end)
+        return false;
+    while (*start == ' ')
+        ++start;
+    if (start == end)
+        return false;
+    while (start != end && *start != ' ')
+    {
+        request_url += *start;
+        ++start;
+    }
+    return true;
 }
+
 
 //thread safe
 std::pair<bool,int> _HttpContext::parseRequest(std::vector<char>&buf)
@@ -122,8 +49,7 @@ std::pair<bool,int> _HttpContext::parseRequest(std::vector<char>&buf)
             it = std::search(it,buf.end(),CRLF.begin(),CRLF.end());
             if(it != buf.end())
             {
-                //ok = parseRequestLine(...);
-                ok = true;
+                ok = parseRequestLine(&*buf.begin(), &*it);
                 if(ok)
                 {
                     it += 2;

@@ -12,7 +12,7 @@ CXXFLAGS +=-Wpointer-arith -Wshadow -Wwrite-strings
 CXXFLAGS +=-march=native -rdynamic 
 CXXFLAGS +=-I$(MUDUO_INCLUDE) 
 
-LDFLAGS = -L$(MUDUO_LIBRARY) -lmuduo_net -lmuduo_base  -lpthread -lrt 
+LDFLAGS = -L$(MUDUO_LIBRARY) -lmuduo_net -lmuduo_base -lhiredis -lpthread -lrt 
 
 all: server 
 clean: 
