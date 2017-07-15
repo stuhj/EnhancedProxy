@@ -4,12 +4,12 @@
 class Cache
 {
   public:
-	Cache(int init_capacity, std::string ip, int port = 6379, int expire_time)
-		: memoryCache(init_capacity), redisCache(ip, port, expire_time)
+	Cache(int init_capacity, int expire_time, std::string ip, int port = 6379)
+		: memoryCache(init_capacity), redisCache(ip.c_str(), port, expire_time)
 	{
 	}
 
-	std::string *readCache(string ulr)
+	std::string *readCache(std::string url)
 	{
 		std::string *res = memoryCache.readCache(url);
 		if (res)
@@ -22,7 +22,8 @@ class Cache
 		}
 		return res;
 	}
-	void writeCache(string url, sting response)
+
+	void writeCache(std::string url, std::string response)
 	{
 		memoryCache.writeCache(url, response);
 		redisCache.writeCache(url, response);

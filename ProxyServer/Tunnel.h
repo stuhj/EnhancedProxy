@@ -14,6 +14,7 @@
 #include "../ModifiedMuduo/TcpServer.h"
 #include "../Http/_HttpContext.h"
 #include "../Cache/Cache.h"
+#include <queue>
 
 class Tunnel : public std::enable_shared_from_this<Tunnel>,
                muduo::noncopyable

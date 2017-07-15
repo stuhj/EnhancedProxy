@@ -1,11 +1,10 @@
 //vec  ：可分配Node的容器
 //如果新来的key 存在于hashmap中，则将对应Node更新置链表末端
 //如果新来的key不存在于hashmap中，且vec为空，则丢弃链表初始端；若vec不为空，则在链表末端插入对应节点
-
+#pragma once
 #include <iostream>
 #include <unordered_map>
 #include <vector>
-#include <string>
 using namespace std;
 template <typename K, typename V>
 struct Node

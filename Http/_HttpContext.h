@@ -28,9 +28,10 @@ class _HttpContext : public muduo::copyable
     }
     //bool parseRequest(Buffer*buf,Timestamp receiveTime);
 
+    //need fix
     std::string createResponse(std::string *content)
     {
-        return string();
+        return *content;
     }
 
     bool gotAll() const
@@ -62,6 +63,7 @@ class _HttpContext : public muduo::copyable
     {
         return hasCookie_;
     }
+    
     const std::string GetMethod = "Get";
 
   private:

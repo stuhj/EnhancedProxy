@@ -1,6 +1,5 @@
-#include "../Http/_HttpContext.h"
+#pragma once
 #include "LRU.h"
-#include "../ProxyServer/ProxyServer.h"
 #include <memory>
 #include <muduo/base/Timestamp.h>
 #include <muduo/base/Mutex.h>
@@ -8,10 +7,11 @@
 #include <muduo/net/Buffer.h>
 #include <muduo/base/Logging.h>
 #include <vector>
+#include <string>
 using namespace muduo;
 using namespace muduo::net;
-typedef LRUCache<string, string> CacheList;
-typedef shared_ptr<cache_list> CacheListPtr;
+typedef LRUCache<std::string, std::string> CacheList;
+typedef std::shared_ptr<CacheList> CacheListPtr;
 
 class MemoryCache
 {
@@ -20,13 +20,13 @@ class MemoryCache
     MutexLock mutex;
 
   public:
-    MemoryCache(int n)
+    MemoryCache(int n):lru_cache(new CacheList(n))
     {
-        lru_cache = new lru_cache(n);
     }
-    //调用时，需要判断
-    string *readCache(string url)
+    //need fix
+    std::string *readCache(std::string url)
     {
+        //dead lock need fix
         MutexLockGuard lock(mutex);
         CacheListPtr lru_cache_temp;
         {
@@ -34,10 +34,10 @@ class MemoryCache
             lru_cache_temp = lru_cache;
             assert(!lru_cache.unique());
         }
-        string *cache_respond = lru_cache_temp->Get(&(context->request_url));
+        std::string *cache_respond = lru_cache_temp->Get(&url);
         return cache_respond;
     }
-    void writeCache(string url, string respond)
+    void writeCache(std::string url, std::string respond)
     {
         if (!lru_cache.unique())
         {
@@ -45,6 +45,6 @@ class MemoryCache
             LOG_INFO << "copy suceed";
         }
         assert(lru_cache.unique());
-        lru_cache->put(&(contex->request_url), &respond);
+        lru_cache->Put(&url, &respond);
     }
 };

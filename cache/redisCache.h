@@ -1,19 +1,21 @@
+#pragma once
 #include <stdio.h>  
 #include <stdlib.h>  
 #include <stddef.h>  
 #include <stdarg.h>  
 #include <string.h>  
 #include <assert.h>  
-#include <hiredis/hiredis.h>  
-
+#include <hiredis/hiredis.h>
+#include<string>
+using namespace std;
 class  RedisCache
 {
 private:
 	redisContext* c ;
 public:
-	RedisCache(const char *ip, int port)
+	RedisCache(const char *ip,int port,int expire_time)
 	{
-		c= redisConnect(*ip, port);  
+		c= redisConnect(ip, port);  
 		if ( c->err)  
 		{  
 		    redisFree(c);  
@@ -23,9 +25,9 @@ public:
 		printf("Connect to redisServer Success\n");
 	}
 
-	 void writeCache(string url,string respond)
+	 void writeCache(std::string url,std::string respond)
 	 {
-	 	string command="set "+url+" "+respond;
+	 	std::string command="set "+url+" "+respond;
 	 	const char* command1 = command.c_str();;  
 		redisReply* r = (redisReply*)redisCommand(c, command1);          
 		if( NULL == r)  
@@ -44,21 +46,23 @@ public:
 		freeReplyObject(r);  
 		printf("Succeed to execute command[%s]\n", command1);
 	}
-	 string *readCache(string url)
+	 std::string *readCache(std::string url)
 	 {
-	 	string command="get "+url;
+	 	std::string command="get "+url;
 	 	const char* command3 = command.c_str();  
-		    r = (redisReply*)redisCommand(c, command3);  
+	                    redisReply* r = (redisReply*)redisCommand(c, command3);  
 		    if ( r->type != REDIS_REPLY_STRING)  
 		    {  
 		        printf("Failed to execute command[%s]\n",command3);  
 		        freeReplyObject(r);  
 		        redisFree(c);  
-		        return;  
+		        return NULL;  
 		    }  
+		    std::string  res=r->str;
 		    printf("The value of 'stest1' is %s\n", r->str);  
 		    freeReplyObject(r);  
-		    printf("Succeed to execute command[%s]\n", command3);       
+		    printf("Succeed to execute command[%s]\n", command3);
+		    return &res;
 	 }
 	 ~RedisCache()
 	 {

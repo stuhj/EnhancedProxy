@@ -25,10 +25,12 @@ public:
         serverName(server_name),
         isStart(false),
         pMutex(mutex),
-        cache(new Cache(DEFAULT_CACHE_CAPACITY, DEFAULT_REDIS_IP,
-                        DEFAULT_REDIS_PORT, DEFAULT_EXPIRED_TIME)),
+        cache(new Cache(DEFAULT_CACHE_CAPACITY, DEFAULT_EXPIRED_TIME,
+                        DEFAULT_REDIS_IP, DEFAULT_REDIS_PORT)),
         server(eventLoop, address, /*serverName*/ "proxy", TcpServer::Option::kReusePort)
   {
+    //-------need fix
+    serverAddr = new InetAddress("127.0.0.1", 6666);
   }
 
   void enableListen();
@@ -75,6 +77,8 @@ private:
   MyThreadPool threadpool;
 
   std::shared_ptr<Cache> cache;
+  //-----------
+  InetAddress *serverAddr;
 };
 
 #endif

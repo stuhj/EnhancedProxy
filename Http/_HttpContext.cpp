@@ -4,7 +4,10 @@
 using namespace muduo;
 using namespace muduo::net;
 const std::string CRLF = "\r\n"; 
-bool _HttpContext::processRequestLine(char*begin, char*end)
+
+
+
+bool _HttpContext::praseRequestLine(char* begin, char* end)
 {
    // size_t length = 0;
     char *start = begin;
@@ -49,7 +52,7 @@ std::pair<bool,int> _HttpContext::parseRequest(std::vector<char>&buf)
             it = std::search(it,buf.end(),CRLF.begin(),CRLF.end());
             if(it != buf.end())
             {
-                ok = parseRequestLine(&*buf.begin(), &*it);
+                ok = praseRequestLine(&*buf.begin(), &*it);
                 if(ok)
                 {
                     it += 2;
