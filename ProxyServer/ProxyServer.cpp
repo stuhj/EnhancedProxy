@@ -124,7 +124,7 @@ void ProxyServer::solveOnMessage(const TcpConnectionPtr &conn, Buffer *buf,
             //add tunnel to map
             //the life of tunnel is longer.
             tunnels[conn->name()] = tunnel;
-            tunnel->pushCache(context->getRequestUrl(), !context->hasCookie());
+            //tunnel->pushCache(context->getRequestUrl(), !context->hasCookie());
             isCheck = true;
         }
         // fix to if ?
@@ -136,7 +136,7 @@ void ProxyServer::solveOnMessage(const TcpConnectionPtr &conn, Buffer *buf,
                 boost::any_cast<const TcpConnectionPtr &>(conn->getContext());
             LOG_INFO << "info.second: " << info.second;
             LOG_INFO << "vector.size(): " << buff.size();
-            //clientConn->send(buf->peek(),info.second);
+            tunnels[conn->name()]->pushCache(context->getRequestUrl(), !context->hasCookie());
             clientConn->send(&*buff.begin(), info.second);
             LOG_INFO << "readableBytes before send: " << buf->readableBytes();
             std::string http_(const_cast<char *>(buf->peek()), buf->beginWrite());
