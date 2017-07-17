@@ -42,7 +42,7 @@ std::pair<bool,int> _HttpContext::parseRequest(std::vector<char>&buf)
     bool ok = false;
     bool hasMore = true;
     unsigned int bodySize = 0;
-    int length = 0;
+    //int length = 0;
     std::vector<char>::iterator it = buf.begin();
     while(hasMore)
     {

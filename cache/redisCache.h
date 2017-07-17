@@ -46,7 +46,7 @@ public:
 		freeReplyObject(r);  
 		printf("Succeed to execute command[%s]\n", command1);
 	}
-	 std::string *readCache(std::string url)
+	 std::string readCache(std::string url)
 	 {
 	 	std::string command="get "+url;
 	 	const char* command3 = command.c_str();  
@@ -62,7 +62,7 @@ public:
 		    printf("The value of 'stest1' is %s\n", r->str);  
 		    freeReplyObject(r);  
 		    printf("Succeed to execute command[%s]\n", command3);
-		    return &res;
+		    return res;
 	 }
 	 ~RedisCache()
 	 {

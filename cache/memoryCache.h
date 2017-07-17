@@ -1,50 +1,48 @@
 #pragma once
-#include "LRU.h"
+//#include "LRU.h"
+#include "Lru.h"
 #include <memory>
-#include <muduo/base/Timestamp.h>
-#include <muduo/base/Mutex.h>
-#include <muduo/base/Thread.h>
-#include <muduo/net/Buffer.h>
-#include <muduo/base/Logging.h>
+#include <thread>
 #include <vector>
 #include <string>
-using namespace muduo;
-using namespace muduo::net;
-typedef LRUCache<std::string, std::string> CacheList;
-typedef std::shared_ptr<CacheList> CacheListPtr;
+#include <assert.h>
+#include <mutex>
+
+//typedef LRUCache<std::string, std::string> CacheList;
+typedef std::shared_ptr<Lru> CacheListPtr;
 
 class MemoryCache
 {
   private:
     CacheListPtr lru_cache;
-    MutexLock mutex;
+    std::mutex mx;
 
   public:
-    MemoryCache(int n):lru_cache(new CacheList(n))
+    MemoryCache(int n):lru_cache(new Lru(n))
     {
     }
     //need fix
-    std::string *readCache(std::string url)
+    std::string readCache(std::string url)
     {
-        //dead lock need fix
-        MutexLockGuard lock(mutex);
         CacheListPtr lru_cache_temp;
         {
-            MutexLockGuard lock(mutex);
+            mx.lock();
             lru_cache_temp = lru_cache;
             assert(!lru_cache.unique());
+            mx.unlock();
         }
-        std::string *cache_respond = lru_cache_temp->Get(&url);
-        return cache_respond;
+        return lru_cache_temp->get(url);
     }
     void writeCache(std::string url, std::string respond)
     {
+        mx.lock();
         if (!lru_cache.unique())
         {
-            lru_cache.reset(new CacheList(*lru_cache));
-            LOG_INFO << "copy suceed";
+            lru_cache.reset(new Lru(*lru_cache));
+            //LOG_INFO << "copy suceed";
         }
         assert(lru_cache.unique());
-        lru_cache->Put(&url, &respond);
+        lru_cache->put(url, respond);
+        mx.unlock();
     }
 };

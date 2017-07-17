@@ -102,8 +102,8 @@ void ProxyServer::solveOnMessage(const TcpConnectionPtr &conn, Buffer *buf,
         if (context->getRequestMethod() == context->GetMethod)
         {
             //read cache
-            std::string *content = cache->readCache(context->getRequestUrl());
-            if (content)
+            std::string content = cache->readCache(context->getRequestUrl());
+            if (content.size())
             {
                 //create http response and send;
                 std::string response = context->createResponse(content);

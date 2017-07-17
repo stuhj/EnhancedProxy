@@ -41,12 +41,12 @@ private:
 
   std::string shmName;
   int *shmAddr;
+  int shmFd;
   int shmId;
   int processNum;
-  int shmFd;
   ProcessMutex pMutex;
-  ProxyServer server;
   MemoryChecker *memoryChecker;
+  ProxyServer server;
   
 };
 

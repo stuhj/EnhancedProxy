@@ -4,6 +4,7 @@ MUDUO_INCLUDE_DIRECTORY = $(HOME_WIN)/muduo-cpp11/muduo-cpp11
 #MUDUO_DIRECTORY ?= $(HOME)/build/install 
 MUDUO_INCLUDE = $(MUDUO_INCLUDE_DIRECTORY)#/include
 MUDUO_LIBRARY = $(MUDUO_DIRECTORY)/lib
+HIREDIS_INCLUDE = $(HOME_WIN)/hiredis-master
 
 CXXFLAGS = -g -std=c++11 -O0 -Wall -Wextra 
 #CXXFLAGS += -Wconversion -Wno-unused-parameter
@@ -11,8 +12,9 @@ CXXFLAGS = -g -std=c++11 -O0 -Wall -Wextra
 CXXFLAGS +=-Wpointer-arith -Wshadow -Wwrite-strings 
 CXXFLAGS +=-march=native -rdynamic 
 CXXFLAGS +=-I$(MUDUO_INCLUDE) 
+CXXFLAGS += -I$(HIREDIS_INCLUDE)
 
-LDFLAGS = -L$(MUDUO_LIBRARY) -lmuduo_net -lmuduo_base -lhiredis -lpthread -lrt 
+LDFLAGS = -L$(MUDUO_LIBRARY) -lmuduo_net -lmuduo_base  -lhiredis -lpthread -lrt 
 
 all: server 
 clean: 

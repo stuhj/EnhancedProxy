@@ -117,15 +117,15 @@ void MasterProcess::notify()
 
 void MasterProcess::checkWorkerStatus()
 {
-    for (int i = 0; i < eventfds.size(); ++i)
+    for (unsigned int i = 0; i < eventfds.size(); ++i)
     {
         if (!processIsAlive(eventfds[i].first))
         {
-            int fd = eventfd(0, EFD_NONBLOCK);
+            //int fd = eventfd(0, EFD_NONBLOCK);
             pid_t pid = fork();
             if (pid == 0)
             {
-                //
+                
             }
             else
             {

@@ -30,7 +30,7 @@ public:
         server(eventLoop, address, /*serverName*/ "proxy", TcpServer::Option::kReusePort)
   {
     //-------need fix
-    serverAddr = new InetAddress("127.0.0.1", 6666);
+    serverAddr = new InetAddress("127.0.0.1", 8888);
   }
 
   void enableListen();
@@ -71,12 +71,12 @@ private:
   uint64_t *shmAddr;
   int shmId;
   ProcessMutex *pMutex;
+  std::shared_ptr<Cache> cache;
   TcpServer server;
   //use muduo::string
   std::map<muduo::string, TunnelPtr> tunnels;
   MyThreadPool threadpool;
 
-  std::shared_ptr<Cache> cache;
   //-----------
   InetAddress *serverAddr;
 };

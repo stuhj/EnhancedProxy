@@ -55,8 +55,8 @@ class Acceptor : noncopyable
   Socket acceptSocket_;
   Channel acceptChannel_;
   NewConnectionCallback newConnectionCallback_;
-  long startListenTime;
   bool listenning_;
+  long startListenTime;
   int idleFd_;
 };
 

@@ -18,7 +18,8 @@ pair<long, long> CircleQueue<T>::tryReadSpace()
 }
 
 template <class T>
-pair<long, long> CircleQueue<T>::tryWriteSpace(long hasWriteStart, long hasWriteEnd)
+pair<long, long> 
+CircleQueue<T>::tryWriteSpace(long hasWriteStart, long hasWriteEnd)
 {
     pair<long, long> result(-1,-1);
     //cout<<"tid1:"<<std::this_thread::get_id()<<endl;

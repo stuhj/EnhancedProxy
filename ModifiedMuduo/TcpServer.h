@@ -155,7 +155,7 @@ private:
   // always in loop thread
   int nextConnId_;
   ConnectionMap connections_;
-  int MAX_CONNECTIONS_NUM = 512;
+  unsigned int MAX_CONNECTIONS_NUM = 512;
   int DEFAULT_ACCEPT_INTERVAL = 10;
   long startListenTime;
 };

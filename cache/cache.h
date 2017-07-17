@@ -9,10 +9,10 @@ class Cache
 	{
 	}
 
-	std::string *readCache(std::string url)
+	std::string readCache(std::string url)
 	{
-		std::string *res = memoryCache.readCache(url);
-		if (res)
+		std::string res = memoryCache.readCache(url);
+		if (res.size())
 		{
 			return res;
 		}

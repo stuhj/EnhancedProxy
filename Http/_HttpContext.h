@@ -29,9 +29,9 @@ class _HttpContext : public muduo::copyable
     //bool parseRequest(Buffer*buf,Timestamp receiveTime);
 
     //need fix
-    std::string createResponse(std::string *content)
+    std::string createResponse(std::string content)
     {
-        return *content;
+        return content;
     }
 
     bool gotAll() const
@@ -42,6 +42,8 @@ class _HttpContext : public muduo::copyable
     void reset()
     {
         state_ = kExpectRequestLine;
+        request_url.clear();
+        request_method.clear();
     }
 
     HttpRequestParseState getStates()

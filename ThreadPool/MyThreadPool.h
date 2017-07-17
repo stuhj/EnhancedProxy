@@ -3,12 +3,11 @@
 #include <mutex>
 #include <set>
 #include <vector>
-#include<functional>
+#include <functional>
 #include "CircleQueue.h"
 #include "Consumer.h"
 #include <muduo/base/Logging.h>
 using namespace std;
-
 
 class MyThreadPool
 {
@@ -19,7 +18,7 @@ public:
 
   ~MyThreadPool()
   {
-    for(auto ptr : threads)
+    for (auto ptr : threads)
     {
       delete ptr;
     }
@@ -32,22 +31,22 @@ public:
     for (int i = 0; i < 4; i++)
     {
       threads.emplace_back(new thread(&MyThreadPool::runInMyThread, this, std::ref(circleArray)));
-      LOG_INFO<<"thread "<<i<<" has started.";
+      LOG_INFO << "thread " << i << " has started.";
     }
   }
 
   void write(long index, function<void()> obj);
   function<void()> read(long index);
 
-  CircleQueue<function<void()>>& getCircleArray()
+  CircleQueue<function<void()>> &getCircleArray()
   {
     return circleArray;
   }
 
 private:
+  bool running;
   CircleQueue<function<void()>> circleArray;
   set<pair<long, long>> readable_queue;
-  vector<thread*> threads;
-  bool running;
-  void runInMyThread(CircleQueue<function<void()>>& circleArray);
+  vector<thread *> threads;
+  void runInMyThread(CircleQueue<function<void()>> &circleArray);
 };
