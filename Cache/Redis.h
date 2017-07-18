@@ -2,10 +2,10 @@
 //#include <iostream>
 #include <hiredis/hiredis.h>
 
-class Redis
+class RedisCache
 {
   public:
-    Redis(std::string passwd, std::string ip = "127.0.0.1", int port = 6379)
+    RedisCache(std::string passwd, std::string ip = "127.0.0.1", int port = 6379)
      : passwd_(passwd), ipAddress_(ip), port_(port)
     {
     }
