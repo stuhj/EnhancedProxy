@@ -25,8 +25,11 @@ public:
         serverName(server_name),
         isStart(false),
         pMutex(mutex),
-        cache(new Cache(DEFAULT_CACHE_CAPACITY, DEFAULT_EXPIRED_TIME,
-                        DEFAULT_REDIS_IP, DEFAULT_REDIS_PORT)),
+        cache(new Cache(DEFAULT_CACHE_CAPACITY, 
+                        DEFAULT_EXPIRED_TIME,
+                        DEFAULT_REDIS_PASSWD,
+                        DEFAULT_REDIS_IP, 
+                        DEFAULT_REDIS_PORT)),
         server(eventLoop, address, /*serverName*/ "proxy", TcpServer::Option::kReusePort)
   {
     //-------need fix
@@ -60,6 +63,7 @@ private:
 
 
   const int DEFAULT_CACHE_CAPACITY = 128;
+  const std::string DEFAULT_REDIS_PASSWD = "Q85610034q";
   const std::string DEFAULT_REDIS_IP = "127.0.0.1";
   const int DEFAULT_REDIS_PORT = 6379;
   const int DEFAULT_EXPIRED_TIME = 20;

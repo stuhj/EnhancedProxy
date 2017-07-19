@@ -130,6 +130,7 @@ void MasterProcess::checkWorkerStatus()
             else
             {
                 eventfds[i].first = pid;
+                //eventfds[i].second = ;
             }
         }
         else
