@@ -3,6 +3,8 @@
 /**
 *  must include the .cpp file, because there is no chance
 *  to link the producer.o and circleQueue.o due to no prodecer.cpp
+*  
+*  the better way is wirte template define in *.h.
 */
 
 #include "CircleQueue.cpp"

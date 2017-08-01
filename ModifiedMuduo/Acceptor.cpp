@@ -31,6 +31,7 @@ Acceptor::Acceptor(EventLoop *loop, const InetAddress &listenAddr, bool reusepor
 {
   assert(idleFd_ >= 0);
   acceptSocket_.setReuseAddr(true);
+  LOG_INFO<<"reused port? "<<reuseport;
   acceptSocket_.setReusePort(reuseport);
   acceptSocket_.bindAddress(listenAddr);
   acceptChannel_.setReadCallback(

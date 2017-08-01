@@ -9,8 +9,9 @@ using namespace std;
 
 void test()
 {
-    cout << "hi" << endl;
-    sleep(1);
+    cout << "hi" << endl;    
+    sleep(1);    
+    
 }
 
 int main()

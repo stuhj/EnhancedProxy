@@ -37,12 +37,13 @@ TcpServer::TcpServer(EventLoop *loop,
 {
   acceptor_->setNewConnectionCallback(
       std::bind(&TcpServer::newConnection, this, _1, _2));
+      LOG_INFO<<" CREATE TCP SERVER";
 }
 
 TcpServer::~TcpServer()
 {
   loop_->assertInLoopThread();
-  LOG_TRACE << "TcpServer::~TcpServer [" << name_ << "] destructing";
+  LOG_INFO << "TcpServer::~TcpServer [" << name_ << "] destructing";
 
   for (ConnectionMap::iterator it(connections_.begin());
        it != connections_.end(); ++it)

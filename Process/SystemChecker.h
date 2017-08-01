@@ -8,6 +8,7 @@ class MemoryChecker
     {
         pid = getpid();
         checkFileName += ("/proc/" + std::string(std::to_string(pid)) + "/status");
+        std::cout<<checkFileName<<std::endl;
         checkFile = new fstream();
     }
 
@@ -21,7 +22,7 @@ class MemoryChecker
     }
     void checkMemory()
     {
-        if (!checkFile->is_open())
+       /* if (!checkFile->is_open())
         {
             checkFile->open(checkFileName, std::ios::in);
         }
@@ -36,7 +37,8 @@ class MemoryChecker
                 MemoryUsed = getMemoryToInt(memoryUsed);
                 break;
             }
-        }
+        }*/
+        //std::cout<<"check memory: "<<MemoryUsed<<std::endl;
     }
 
     unsigned int getMemoryToInt(std::string memoryUsed)

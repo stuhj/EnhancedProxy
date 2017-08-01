@@ -1,5 +1,6 @@
 #include "MasterProcess.h"
 #include <iostream>
+#include <sys/wait.h>
 
 bool processIsAlive(pid_t)
 {
@@ -69,6 +70,14 @@ void MasterProcess::start()
 {
     pid_t pid;
     WorkerProcess *worker;
+    //create backup eventfd
+    for(int i = 0; i < 10; i++)
+    {
+        int fd = eventfd(0, EFD_NONBLOCK);
+        if(fd > 0){
+            eventFdQueue.push(fd);
+        }
+    }
     for (uint16_t i = 0; i < processNum - 1; i++)
     {
         int fd = eventfd(0, EFD_NONBLOCK);
@@ -88,6 +97,7 @@ void MasterProcess::start()
         }
         else
         {
+            processShmIdMap[pid] = i;
             eventfds.push_back(pair<int, int *>(pid, shmAddr + i));
         }
     }
@@ -101,6 +111,8 @@ void MasterProcess::start()
         eventLoop = new muduo::net::EventLoop();
         eventLoop->runEvery(checkInterval, bind(&MasterProcess::checkWorkerStatus, this));
 
+        std::thread th(&MasterProcess::checkWorkerExit, this);
+        th.detach();
         //master should process signal
         eventLoop->loop();
     }
@@ -136,6 +148,37 @@ void MasterProcess::checkWorkerStatus()
         else
         {
             //cout << "check ok" << endl;
+        }
+    }
+}
+
+void MasterProcess::checkWorkerExit()
+{
+    cout<<"MasterProcess::checkWorkerExit thread start"<<endl;
+    //while(running)
+    while(eventFdQueue.size())
+    {
+        int status;
+        pid_t pid = wait(&status);
+        int shmId = processShmIdMap[pid];
+        std::cout<<"process exit - pid: "<<pid<<"\tstatus: "<<status<<std::endl;
+        if(pid > -1){
+            int pid_ = fork();
+            if(pid == 0){
+                int evfd = eventFdQueue.front();
+                eventFdQueue.pop();
+                shmAddr[shmId] = evfd;
+                WorkerProcess *worker = new WorkerProcess(evfd, shmId, processNum, 
+                                            pMutex.getMutexName(),
+                                            pMutex.getMutexFd());
+            }
+            else if(pid != -1){
+                continue;
+            }
+            else{
+                //- -!
+                
+            }
         }
     }
 }

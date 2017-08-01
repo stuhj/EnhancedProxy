@@ -52,6 +52,8 @@ class MasterProcess
   private:
     void checkWorkerStatus();
 
+    void checkWorkerExit();
+
     void signalHandlers();
 
     void notify();
@@ -80,6 +82,10 @@ class MasterProcess
     muduo::net::EventLoop *eventLoop;
 
     map<int, signalHandler> &handlers;
+
+    queue<int> eventFdQueue;
+
+    unordered_map<pid_t, int> processShmIdMap;
 
     uint16_t processNum;
 

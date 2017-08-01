@@ -7,10 +7,16 @@
 using namespace std::placeholders;
 void ProxyServer::start()
 {
+    LOG_INFO<<"START!";
     threadpool.start();
     if (pMutex->tryLock())
     {
         enableListen();
+        LOG_INFO<<"PID: "<<getpid()<<" start listen.";
+    }
+    else
+    {
+        LOG_INFO<<"PID: "<<getpid()<<" wait to listen.";
     }
 }
 

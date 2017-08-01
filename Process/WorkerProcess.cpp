@@ -16,11 +16,13 @@ WorkerProcess::WorkerProcess(int shm_fd, int shm_id, int process_num,
       memoryChecker(new MemoryChecker()),
       server(eventLoop, InetAddress("127.0.0.1", 6666), std::string("proxy"), &pMutex)
 {
+    LOG_INFO<<"worker "<<shmId<<" create1";
     cout << shm_id << endl;
     //create shared memory to access eventfd
     shmAddr = (int *)mmap(nullptr, sizeof(int) * (processNum - 1),
                           PROT_READ | PROT_WRITE, MAP_SHARED, shmFd, 0);
     assert(shmAddr != MAP_FAILED);
+    LOG_INFO<<"worker "<<shmId<<" create2";
 }
 
 WorkerProcess::~WorkerProcess()

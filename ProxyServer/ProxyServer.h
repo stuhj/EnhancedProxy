@@ -33,6 +33,7 @@ public:
         server(eventLoop, address, /*serverName*/ "proxy", TcpServer::Option::kReusePort)
   {
     //-------need fix
+    LOG_INFO << "create proxy server";
     serverAddr = new InetAddress("127.0.0.1", 8888);
   }
 

@@ -8,6 +8,7 @@ class Cache
 				std::string ip, int port = 6379)
 		: memoryCache(init_capacity), redisCache(passwd, ip.c_str(), port)
 	{
+		std::cout<<"cache"<<std::endl;
 	}
 
 	std::string readCache(std::string url)
